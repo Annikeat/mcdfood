@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>McDonald's Order App</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background: #f5f5f5;
+    }
+
+    header {
+      background: #d52b1e;
+      color: white;
+      padding: 15px 25px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    header a {
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .container {
+      padding: 25px;
+    }
+
+    .menu {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+    }
+
+    .item {
+      background: white;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+
+    .item img {
+      width: 100%;
+      height: 160px;
+      object-fit: cover;
+    }
+
+    .item h4 {
+      margin: 10px 0 5px;
+    }
+
+    .item p {
+      margin: 0 0 10px;
+      font-weight: bold;
+    }
+
+    button {
+      background: #ffc72c;
+      border: none;
+      padding: 10px;
+      width: 90%;
+      margin-bottom: 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    button:hover {
+      background: #ffb700;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    li {
+      background: white;
+      padding: 12px;
+      margin-bottom: 10px;
+      border-radius: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .pay {
+      background: #28a745;
+      color: white;
+      width: 100%;
+      padding: 14px;
+      font-size: 16px;
+      border-radius: 6px;
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <h2>🍔 McDonald's</h2>
+  <a href="#/cart">🛒 Cart</a>
+</header>
+
+<div class="container">
+
+  <!-- HOME / MENU -->
+  <div id="home">
+    <h3>Menu</h3>
+
+    <div class="menu">
+      <div class="item">
+        <img src="https://images.unsplash.com/photo-1550547660-d9450f859349" alt="Burger">
+        <h4>Classic Burger</h4>
+        <p>₹120</p>
+        <button onclick="addToCart('Burger',120)">Add to Cart</button>
+      </div>
+
+      <div class="item">
+        <img src="https://images.unsplash.com/photo-1571091718767-18b5b1457add" alt="Fries">
+        <h4>French Fries</h4>
+        <p>₹80</p>
+        <button onclick="addToCart('Fries',80)">Add to Cart</button>
+      </div>
+
+      <div class="item">
+        <img src="https://images.unsplash.com/photo-1600271886742-f049cd451bba" alt="Coke">
+        <h4>Coca Cola</h4>
+        <p>₹50</p>
+        <button onclick="addToCart('Coke',50)">Add to Cart</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CART -->
+  <div id="cart" style="display:none;">
+    <h3>Your Cart</h3>
+    <ul id="cartList"></ul>
+    <h3>Total: ₹<span id="total">0</span></h3>
+    <button class="pay" onclick="payNow()">Pay Now</button>
+  </div>
+
+</div>
+
+<script>
+  let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+  function addToCart(name, price) {
+    const item = cart.find(i => i.name === name);
+    if (item) {
+      item.qty++;
+    } else {
+      cart.push({ name, price, qty: 1 });
+    }
+    localStorage.setItem("cart", JSON.stringify(cart));
+    alert(name + " added to cart");
+  }
+
+  function renderCart() {
+    const list = document.getElementById("cartList");
+    list.innerHTML = "";
+    let total = 0;
+
+    cart.forEach((item, index) => {
+      total += item.price * item.qty;
+      list.innerHTML += `
+        <li>
+          ${item.name} x ${item.qty}
+          <button onclick="removeItem(${index})">❌</button>
+        </li>
+      `;
+    });
+
+    document.getElementById("total").innerText = total;
+  }
+
+  function removeItem(index) {
+    cart.splice(index, 1);
+    localStorage.setItem("cart", JSON.stringify(cart));
+    renderCart();
+  }
+
+  function payNow() {
+    if (cart.length === 0) {
+      alert("Cart is empty!");
+      return;
+    }
+    alert("Payment Successful ✅");
+    cart = [];
+    localStorage.removeItem("cart");
+    renderCart();
+    location.hash = "/";
+  }
+
+  function router() {
+    const route = location.hash;
+    document.getElementById("home").style.display =
+      route === "#/cart" ? "none" : "block";
+    document.getElementById("cart").style.display =
+      route === "#/cart" ? "block" : "none";
+    if (route === "#/cart") renderCart();
+  }
+
+  window.addEventListener("hashchange", router);
+  router();
+</script>
+
+</body>
+</html>
+
